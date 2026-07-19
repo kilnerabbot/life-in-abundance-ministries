@@ -32,10 +32,10 @@ export const hero = {
 
 export const mission = {
   heading: "The Promise",
-  // NOTE: the church signage reads "Walk on the Abundant Life". This site uses
-  // "Walk in" per the written brief — confirm which wording is preferred.
+  // Wording matches the church's physical signage exactly ("Walk on", not
+  // "Walk in") — confirmed by the pastor. Do not "correct" this.
   statement:
-    "To Cause People to See, Experience and Walk in the Abundant Life that Jesus Came to Give Us.",
+    "To Cause People to See, Experience and Walk on the Abundant Life that Jesus Came to Give Us.",
   body: "Abundance is not a reward reserved for a distant day. It is the life Jesus purchased and handed to us now — in our homes, our work, our health, our relationships and our hope. Everything we do here exists to help you see that life clearly, taste it personally, and then walk in it daily.",
 };
 
@@ -268,6 +268,6 @@ export const contact = {
 
 export const footer = {
   blurb:
-    "A church family in Johannesburg helping people see, experience and walk in the abundant life Jesus came to give.",
+    "A church family in Johannesburg helping people see, experience and walk on the abundant life Jesus came to give.",
   credit: "Website by Elonhub Tech",
 };

@@ -16,7 +16,7 @@ export default function AboutPage() {
       <PageHeader
         eyebrow="Who We Are"
         title="About Our Church"
-        intro={`${site.name} exists for one reason — so that people would see, experience and walk in the abundant life Jesus came to give.`}
+        intro={`${site.name} exists for one reason — so that people would see, experience and walk on the abundant life Jesus came to give.`}
       />
 
       {/* Our story */}

@@ -34,6 +34,7 @@ type MotionMode = "full" | "simple" | "none";
 
 export default function Hero() {
   const sectionRef = useRef<HTMLElement>(null);
+  const pinRef = useRef<HTMLDivElement>(null);
   const bgRef = useRef<HTMLDivElement>(null);
   const glowRef = useRef<HTMLDivElement>(null);
   const branchRefs = useRef<(SVGPathElement | null)[]>([]);
@@ -109,7 +110,15 @@ export default function Hero() {
           start: "top top",
           end: "+=180%",
           scrub: 1,
-          pin: true,
+          // Pin the INNER wrapper, never the <section> itself. ScrollTrigger
+          // re-parents whatever it pins into a generated .pin-spacer div. If
+          // that were the section — the outermost node React renders here —
+          // then on client-side navigation React's main.removeChild(section)
+          // would throw NotFoundError and crash the whole app, because the
+          // section's real parent had silently become the spacer.
+          // Keeping the spacer inside the section leaves React's removal
+          // boundary untouched.
+          pin: pinRef.current,
           anticipatePin: 1,
         },
       });
@@ -149,95 +158,101 @@ export default function Hero() {
     <section
       ref={sectionRef}
       aria-label="Welcome to Life in Abundance Ministries"
-      className="relative flex h-screen w-full items-center justify-center overflow-hidden bg-abundance-night"
+      className="relative w-full bg-abundance-night"
     >
-      <div ref={bgRef} className="absolute inset-0 bg-abundance-night" />
-
-      {/* the seed of light the tree grows from */}
+      {/* Inner wrapper is what GSAP pins — see the ScrollTrigger config above. */}
       <div
-        ref={glowRef}
-        className="absolute left-1/2 top-[64%] h-40 w-40 -translate-x-1/2 -translate-y-1/2 rounded-full bg-abundance-leaf/40 blur-3xl"
-        aria-hidden="true"
-      />
-
-      <svg
-        viewBox="0 0 200 240"
-        className="absolute left-1/2 top-1/2 h-[78vh] w-auto -translate-x-1/2 -translate-y-[56%] opacity-90"
-        aria-hidden="true"
+        ref={pinRef}
+        className="relative flex h-screen w-full items-center justify-center overflow-hidden"
       >
-        {BRANCHES.map((d, i) => (
-          <path
-            key={d}
-            ref={(el) => {
-              branchRefs.current[i] = el;
-            }}
-            d={d}
-            fill="none"
-            stroke="#7AB648"
-            strokeWidth={3}
-            strokeLinecap="round"
-          />
-        ))}
-        {LEAVES.map((leaf, i) => (
-          <circle
-            key={`${leaf.cx}-${leaf.cy}`}
-            ref={(el) => {
-              leafRefs.current[i] = el;
-            }}
-            cx={leaf.cx}
-            cy={leaf.cy}
-            r={leaf.r}
-            fill="#7AB648"
-          />
-        ))}
-      </svg>
+        <div ref={bgRef} className="absolute inset-0 bg-abundance-night" />
 
-      {/* legibility scrim behind the headline */}
-      <div
-        className="absolute inset-0 bg-gradient-to-t from-abundance-night/70 via-transparent to-abundance-night/40"
-        aria-hidden="true"
-      />
+        {/* the seed of light the tree grows from */}
+        <div
+          ref={glowRef}
+          className="absolute left-1/2 top-[64%] h-40 w-40 -translate-x-1/2 -translate-y-1/2 rounded-full bg-abundance-leaf/40 blur-3xl"
+          aria-hidden="true"
+        />
 
-      {/* Starts hidden so the desktop scrub sequence can't flash the headline
-          before the effect runs. The <noscript> rule in app/layout.tsx forces
-          it visible if JavaScript never executes. */}
-      <div
-        ref={contentRef}
-        data-reveal
-        style={{ opacity: 0 }}
-        className="container-px relative z-10 text-center"
-      >
-        <p className="font-body text-xs font-semibold uppercase tracking-[0.35em] text-abundance-leaf">
-          {hero.eyebrow}
-        </p>
-        <h1 className="mt-4 font-display text-5xl font-semibold leading-[1.05] text-white drop-shadow-lg sm:text-7xl md:text-8xl">
-          {hero.headline}
-        </h1>
-        <p className="mx-auto mt-5 max-w-xl font-body text-sm text-white/85 sm:text-lg">
-          {hero.subline}
-        </p>
+        <svg
+          viewBox="0 0 200 240"
+          className="absolute left-1/2 top-1/2 h-[78vh] w-auto -translate-x-1/2 -translate-y-[56%] opacity-90"
+          aria-hidden="true"
+        >
+          {BRANCHES.map((d, i) => (
+            <path
+              key={d}
+              ref={(el) => {
+                branchRefs.current[i] = el;
+              }}
+              d={d}
+              fill="none"
+              stroke="#7AB648"
+              strokeWidth={3}
+              strokeLinecap="round"
+            />
+          ))}
+          {LEAVES.map((leaf, i) => (
+            <circle
+              key={`${leaf.cx}-${leaf.cy}`}
+              ref={(el) => {
+                leafRefs.current[i] = el;
+              }}
+              cx={leaf.cx}
+              cy={leaf.cy}
+              r={leaf.r}
+              fill="#7AB648"
+            />
+          ))}
+        </svg>
 
-        <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
-          <Link
-            href={hero.cta.href}
-            className="rounded-full bg-abundance-leaf px-7 py-3 font-body text-sm font-semibold text-white shadow-lg transition-transform hover:scale-105"
-          >
-            {hero.cta.label}
-          </Link>
-          <Link
-            href={hero.ctaSecondary.href}
-            className="rounded-full border border-white/40 px-7 py-3 font-body text-sm font-semibold text-white backdrop-blur-sm transition-colors hover:bg-white/10"
-          >
-            {hero.ctaSecondary.label}
-          </Link>
+        {/* legibility scrim behind the headline */}
+        <div
+          className="absolute inset-0 bg-gradient-to-t from-abundance-night/70 via-transparent to-abundance-night/40"
+          aria-hidden="true"
+        />
+
+        {/* Starts hidden so the desktop scrub sequence can't flash the headline
+            before the effect runs. The <noscript> rule in app/layout.tsx forces
+            it visible if JavaScript never executes. */}
+        <div
+          ref={contentRef}
+          data-reveal
+          style={{ opacity: 0 }}
+          className="container-px relative z-10 text-center"
+        >
+          <p className="font-body text-xs font-semibold uppercase tracking-[0.35em] text-abundance-leaf">
+            {hero.eyebrow}
+          </p>
+          <h1 className="mt-4 font-display text-5xl font-semibold leading-[1.05] text-white drop-shadow-lg sm:text-7xl md:text-8xl">
+            {hero.headline}
+          </h1>
+          <p className="mx-auto mt-5 max-w-xl font-body text-sm text-white/85 sm:text-lg">
+            {hero.subline}
+          </p>
+
+          <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
+            <Link
+              href={hero.cta.href}
+              className="rounded-full bg-abundance-leaf px-7 py-3 font-body text-sm font-semibold text-white shadow-lg transition-transform hover:scale-105"
+            >
+              {hero.cta.label}
+            </Link>
+            <Link
+              href={hero.ctaSecondary.href}
+              className="rounded-full border border-white/40 px-7 py-3 font-body text-sm font-semibold text-white backdrop-blur-sm transition-colors hover:bg-white/10"
+            >
+              {hero.ctaSecondary.label}
+            </Link>
+          </div>
         </div>
-      </div>
 
-      <div
-        className="absolute bottom-6 left-1/2 -translate-x-1/2 text-[0.6rem] uppercase tracking-[0.3em] text-white/50"
-        aria-hidden="true"
-      >
-        Scroll
+        <div
+          className="absolute bottom-6 left-1/2 -translate-x-1/2 text-[0.6rem] uppercase tracking-[0.3em] text-white/50"
+          aria-hidden="true"
+        >
+          Scroll
+        </div>
       </div>
     </section>
   );
