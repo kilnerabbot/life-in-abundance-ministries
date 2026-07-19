@@ -3,20 +3,26 @@
 import { useEffect, useState } from "react";
 import { services } from "@/content";
 
-// South Africa uses SAST (UTC+2) year-round — no daylight saving. We compute
-// "now" shifted into a UTC-field-readable SAST space so the countdown is
-// correct regardless of the visitor's own timezone.
+// South Africa observes SAST (UTC+2) year-round with no daylight saving, so a
+// fixed offset is safe. We shift the absolute epoch by that offset and then
+// read wall-clock fields with the UTC getters — this makes the countdown
+// correct for a visitor in any timezone, not just one sitting in Johannesburg.
 const SAST_OFFSET_MS = 2 * 60 * 60 * 1000;
 const DAY_LABELS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 function shiftedNowMs(now: Date): number {
   // now.getTime() is already an absolute UTC epoch — no local-offset
-  // correction needed. Shifting by the fixed SAST offset (UTC+2) lets us
-  // read SAST wall-clock fields via the UTC getters below.
+  // correction needed.
   return now.getTime() + SAST_OFFSET_MS;
 }
 
-function candidateMs(shifted: number, dayOfWeek: number, hh: number, mm: number, weekOffset: number): number {
+function candidateMs(
+  shifted: number,
+  dayOfWeek: number,
+  hh: number,
+  mm: number,
+  weekOffset: number
+): number {
   const d = new Date(shifted);
   const currentDow = d.getUTCDay();
   const deltaDays = ((dayOfWeek - currentDow + 7) % 7) + weekOffset * 7;
@@ -41,6 +47,7 @@ type Next = {
   start: string;
   startMs: number;
   endMs: number;
+  live: boolean;
 };
 
 function findNextService(now: Date): Next {
@@ -51,82 +58,110 @@ function findNextService(now: Date): Next {
     const [sh, sm] = parseHM(s.start);
     const [eh, em] = parseHM(s.end);
 
+    // weekOffset 1 always yields a candidate whose end is in the future, so a
+    // match is guaranteed and the loop can stop at the first one it finds.
     for (const weekOffset of [0, 1]) {
       const startMs = candidateMs(shifted, s.day, sh, sm, weekOffset);
       const endMs = candidateMs(shifted, s.day, eh, em, weekOffset);
       if (endMs > shifted) {
         if (!best || startMs < best.startMs) {
-          best = { name: s.name, day: s.day, start: s.start, startMs, endMs };
+          best = {
+            name: s.name,
+            day: s.day,
+            start: s.start,
+            startMs,
+            endMs,
+            live: startMs <= shifted,
+          };
         }
         break;
       }
     }
   }
 
-  // best is always found since a next-week candidate always satisfies endMs > shifted
   return best as Next;
 }
 
 function splitDuration(ms: number) {
-  const clamped = Math.max(0, ms);
-  const totalSeconds = Math.floor(clamped / 1000);
-  const days = Math.floor(totalSeconds / 86400);
-  const hours = Math.floor((totalSeconds % 86400) / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
-  const seconds = totalSeconds % 60;
-  return { days, hours, minutes, seconds };
+  const totalSeconds = Math.floor(Math.max(0, ms) / 1000);
+  return {
+    days: Math.floor(totalSeconds / 86400),
+    hours: Math.floor((totalSeconds % 86400) / 3600),
+    minutes: Math.floor((totalSeconds % 3600) / 60),
+    seconds: totalSeconds % 60,
+  };
 }
 
 function Unit({ value, label }: { value: number; label: string }) {
   return (
-    <div className="flex flex-col items-center">
-      <span className="font-display text-4xl font-semibold text-abundance-offwhite sm:text-5xl">
+    <div className="flex min-w-[4.5rem] flex-col items-center rounded-xl bg-white/10 px-3 py-4 backdrop-blur-sm sm:min-w-[6rem]">
+      <span className="font-display text-4xl font-semibold tabular-nums text-white sm:text-5xl">
         {value.toString().padStart(2, "0")}
       </span>
-      <span className="mt-1 text-xs uppercase tracking-widest text-abundance-offwhite/70">{label}</span>
+      <span className="mt-1 font-body text-[0.6rem] uppercase tracking-[0.2em] text-white/60">
+        {label}
+      </span>
     </div>
   );
 }
 
 export default function Countdown() {
-  const [mounted, setMounted] = useState(false);
   const [now, setNow] = useState<Date | null>(null);
 
+  // Rendered only after mount: the server has no idea what time it is for the
+  // visitor, so emitting a countdown during SSR would guarantee a mismatch.
   useEffect(() => {
-    setMounted(true);
     setNow(new Date());
     const id = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(id);
   }, []);
 
+  const next = now ? findNextService(now) : null;
+  const remaining = next && now ? next.startMs - shiftedNowMs(now) : 0;
+  const { days, hours, minutes, seconds } = splitDuration(remaining);
+
   return (
-    <section aria-labelledby="countdown-heading" className="bg-abundance-blue py-20">
-      <div className="container-px mx-auto max-w-2xl text-center">
-        <h2 id="countdown-heading" className="mb-6 font-display text-sm uppercase tracking-[0.3em] text-abundance-leaf">
+    <section aria-labelledby="countdown-heading" className="bg-abundance-blue py-20 sm:py-24">
+      <div className="container-px mx-auto max-w-3xl text-center">
+        <h2
+          id="countdown-heading"
+          className="font-body text-xs font-semibold uppercase tracking-[0.3em] text-abundance-leaf"
+        >
           Next Service
         </h2>
 
-        {!mounted || !now ? (
-          <div className="h-24" aria-hidden="true" />
+        {!next ? (
+          <div className="mt-6 h-[9.5rem]" aria-hidden="true" />
+        ) : next.live ? (
+          <div className="mt-6">
+            <p className="font-display text-3xl font-semibold text-white sm:text-4xl">
+              {next.name} is happening now
+            </p>
+            <p className="mt-3 font-body text-white/70">
+              {DAY_LABELS[next.day]} &middot; {to12Hour(next.start)} &middot; You are welcome to join us.
+            </p>
+          </div>
         ) : (
-          (() => {
-            const next = findNextService(now);
-            const remaining = next.startMs - shiftedNowMs(now);
-            const { days, hours, minutes, seconds } = splitDuration(remaining);
-            const label = `Next: ${next.name} — ${DAY_LABELS[next.day]} ${to12Hour(next.start)}`;
+          <div className="mt-6">
+            <p className="font-display text-2xl font-semibold text-white sm:text-3xl">
+              {next.name}
+            </p>
+            <p className="mt-1 font-body text-sm uppercase tracking-[0.15em] text-abundance-leaf">
+              {DAY_LABELS[next.day]} &middot; {to12Hour(next.start)}
+            </p>
 
-            return (
-              <div>
-                <p className="mb-6 font-body text-lg text-abundance-offwhite">{label}</p>
-                <div className="flex justify-center gap-6 sm:gap-10">
-                  <Unit value={days} label="Days" />
-                  <Unit value={hours} label="Hours" />
-                  <Unit value={minutes} label="Minutes" />
-                  <Unit value={seconds} label="Seconds" />
-                </div>
-              </div>
-            );
-          })()
+            <div
+              className="mt-8 flex justify-center gap-2.5 sm:gap-4"
+              role="timer"
+              aria-live="off"
+              aria-label={`Time remaining until ${next.name}: ${days} days, ${hours} hours, ${minutes} minutes`}
+            >
+              <Unit value={days} label="Days" />
+              <Unit value={hours} label="Hours" />
+              <Unit value={minutes} label="Mins" />
+              <Unit value={seconds} label="Secs" />
+            </div>
+          </div>
         )}
       </div>
     </section>

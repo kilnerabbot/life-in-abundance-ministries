@@ -3,13 +3,21 @@
 @tailwind utilities;
 
 html {
-  scroll-behavior: smooth;
+  /* NOTE: no `scroll-behavior: smooth` here — GSAP documents it as
+     incompatible with ScrollTrigger pin/scrub, which the hero relies on. */
+  scroll-padding-top: 5rem;
 }
 
+body {
+  background-color: #f7f7f2;
+  color: #0b1d28;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Clamps CSS transitions/animations. GSAP and Framer Motion write inline
+   styles that ignore this, so those are handled in JS via useReducedMotion()
+   and matchMedia() — see components/Motion.tsx and components/Hero.tsx. */
 @media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
   *,
   *::before,
   *::after {
@@ -20,14 +28,10 @@ html {
   }
 }
 
-body {
-  background-color: #0b1d28;
-  color: #f7f7f2;
-}
-
 :focus-visible {
   outline: 3px solid #7ab648;
-  outline-offset: 2px;
+  outline-offset: 3px;
+  border-radius: 2px;
 }
 
 .container-px {
@@ -37,7 +41,25 @@ body {
 
 @media (min-width: 768px) {
   .container-px {
-    padding-left: 3rem;
-    padding-right: 3rem;
+    padding-left: 2.5rem;
+    padding-right: 2.5rem;
   }
+}
+
+/* Skip link — visible only once focused */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+}
+
+.skip-link:focus {
+  left: 1rem;
+  top: 1rem;
+  padding: 0.75rem 1.25rem;
+  background: #ffffff;
+  color: #1b5a7d;
+  border-radius: 9999px;
+  font-weight: 600;
 }

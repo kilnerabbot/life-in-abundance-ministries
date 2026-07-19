@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { hero } from "@/content";
@@ -9,8 +10,8 @@ if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
 
-// Tree branch paths share one viewBox (0 0 200 240), rooted at the seed of
-// light near the bottom-center. Each path is animated via stroke-dashoffset.
+// Branch paths share one viewBox (0 0 200 240), rooted at the seed of light
+// near the bottom-centre. Each is grown by animating stroke-dashoffset.
 const BRANCHES = [
   "M100 220 C 100 180, 100 150, 100 120",
   "M100 150 C 90 130, 70 115, 55 100",
@@ -29,18 +30,25 @@ const LEAVES = [
   { cx: 100, cy: 65, r: 8 },
 ];
 
+type MotionMode = "full" | "simple" | "none";
+
 export default function Hero() {
   const sectionRef = useRef<HTMLElement>(null);
   const bgRef = useRef<HTMLDivElement>(null);
+  const glowRef = useRef<HTMLDivElement>(null);
   const branchRefs = useRef<(SVGPathElement | null)[]>([]);
   const leafRefs = useRef<(SVGCircleElement | null)[]>([]);
-  const headlineRef = useRef<HTMLDivElement>(null);
-  const [reducedOrMobile, setReducedOrMobile] = useState<boolean | null>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [mode, setMode] = useState<MotionMode | null>(null);
 
+  // "full"   → pinned, scrubbed growth sequence (desktop, motion allowed)
+  // "simple" → fully grown tree + one gentle fade (mobile)
+  // "none"   → fully grown tree, no animation at all (reduced motion)
   useEffect(() => {
     const reduceQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
     const mobileQuery = window.matchMedia("(max-width: 767px)");
-    const evaluate = () => setReducedOrMobile(reduceQuery.matches || mobileQuery.matches);
+    const evaluate = () =>
+      setMode(reduceQuery.matches ? "none" : mobileQuery.matches ? "simple" : "full");
     evaluate();
     reduceQuery.addEventListener("change", evaluate);
     mobileQuery.addEventListener("change", evaluate);
@@ -51,25 +59,38 @@ export default function Hero() {
   }, []);
 
   useEffect(() => {
-    if (reducedOrMobile === null) return;
+    if (mode === null) return;
 
     const branches = branchRefs.current.filter(Boolean) as SVGPathElement[];
     const leaves = leafRefs.current.filter(Boolean) as SVGCircleElement[];
 
-    if (reducedOrMobile) {
-      // Fallback: fully-grown tree, simple fade/translate entrance, no pin/scrub.
-      branches.forEach((p) => {
-        const len = p.getTotalLength();
-        gsap.set(p, { strokeDasharray: len, strokeDashoffset: 0 });
-      });
-      gsap.set(leaves, { scale: 1, transformOrigin: "center" });
-      gsap.set(bgRef.current, { background: "linear-gradient(180deg,#1B5A7D 0%,#0B1D28 100%)" });
-      gsap.fromTo(
-        headlineRef.current,
-        { opacity: 0, y: 24 },
-        { opacity: 1, y: 0, duration: 0.9, ease: "power2.out" }
-      );
-      return;
+    // Fallback for mobile and reduced motion: no pin, no scrub, tree already
+    // grown. Wrapped in a context so a mode flip (e.g. resizing across the
+    // breakpoint) reverts any in-flight tween and its inline styles.
+    if (mode !== "full") {
+      const fallbackCtx = gsap.context(() => {
+        branches.forEach((p) => {
+          const len = p.getTotalLength();
+          gsap.set(p, { strokeDasharray: len, strokeDashoffset: 0 });
+        });
+        gsap.set(leaves, { scale: 1, opacity: 1, transformOrigin: "center" });
+        gsap.set(bgRef.current, {
+          background: "linear-gradient(180deg,#0B1D28 0%,#1B5A7D 55%,#2C7FA6 100%)",
+        });
+        gsap.set(glowRef.current, { opacity: 0.55 });
+
+        if (mode === "simple") {
+          gsap.fromTo(
+            contentRef.current,
+            { opacity: 0, y: 22 },
+            { opacity: 1, y: 0, duration: 0.85, ease: "power2.out" }
+          );
+        } else {
+          gsap.set(contentRef.current, { opacity: 1, y: 0 });
+        }
+      }, sectionRef);
+
+      return () => fallbackCtx.revert();
     }
 
     const ctx = gsap.context(() => {
@@ -78,55 +99,70 @@ export default function Hero() {
         gsap.set(p, { strokeDasharray: len, strokeDashoffset: len });
       });
       gsap.set(leaves, { scale: 0, transformOrigin: "center" });
-      gsap.set(headlineRef.current, { opacity: 0, y: 30 });
-      gsap.set(bgRef.current, { background: "#0B1D28" });
+      gsap.set(contentRef.current, { opacity: 0, y: 30 });
+      gsap.set(bgRef.current, { background: "linear-gradient(180deg,#0B1D28 0%,#0B1D28 100%)" });
+      gsap.set(glowRef.current, { opacity: 0.35, scale: 0.6 });
 
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: sectionRef.current,
           start: "top top",
-          end: "+=150%",
+          end: "+=180%",
           scrub: 1,
           pin: true,
+          anticipatePin: 1,
         },
       });
 
-      tl.to(bgRef.current, {
-        background: "linear-gradient(180deg,#F7F7F2 0%,#1B5A7D 100%)",
-        duration: 1,
-        ease: "none",
-      }, 0);
+      // night → dawn
+      tl.to(
+        bgRef.current,
+        {
+          background: "linear-gradient(180deg,#0B1D28 0%,#1B5A7D 45%,#E8C97A 100%)",
+          duration: 1,
+          ease: "none",
+        },
+        0
+      );
 
+      tl.to(glowRef.current, { opacity: 0.7, scale: 1.15, duration: 0.5, ease: "none" }, 0);
+
+      // branches draw outward from the seed
       branches.forEach((p, i) => {
-        tl.to(p, { strokeDashoffset: 0, duration: 0.6, ease: "none" }, 0.05 + i * 0.06);
+        tl.to(p, { strokeDashoffset: 0, duration: 0.55, ease: "none" }, 0.05 + i * 0.06);
       });
 
-      tl.to(leaves, { scale: 1, duration: 0.4, stagger: 0.05, ease: "back.out(2)" }, 0.55);
+      // leaves pop in
+      tl.to(leaves, { scale: 1, duration: 0.35, stagger: 0.05, ease: "back.out(2)" }, 0.55);
 
-      tl.to(headlineRef.current, { opacity: 1, y: 0, duration: 0.4, ease: "none" }, 0.75);
+      // glow recedes as the canopy takes over
+      tl.to(glowRef.current, { opacity: 0.25, duration: 0.3, ease: "none" }, 0.7);
+
+      // headline arrives last
+      tl.to(contentRef.current, { opacity: 1, y: 0, duration: 0.35, ease: "none" }, 0.72);
     }, sectionRef);
 
     return () => ctx.revert();
-  }, [reducedOrMobile]);
+  }, [mode]);
 
   return (
     <section
-      id="home"
       ref={sectionRef}
-      aria-label="Welcome — from darkness to light"
-      className="relative flex h-screen w-full items-center justify-center overflow-hidden"
+      aria-label="Welcome to Life in Abundance Ministries"
+      className="relative flex h-screen w-full items-center justify-center overflow-hidden bg-abundance-night"
     >
       <div ref={bgRef} className="absolute inset-0 bg-abundance-night" />
 
-      {/* faint glowing seed of light, always present at center-base of tree */}
+      {/* the seed of light the tree grows from */}
       <div
-        className="absolute left-1/2 top-[62%] h-24 w-24 -translate-x-1/2 -translate-y-1/2 rounded-full bg-abundance-leaf/30 blur-2xl"
+        ref={glowRef}
+        className="absolute left-1/2 top-[64%] h-40 w-40 -translate-x-1/2 -translate-y-1/2 rounded-full bg-abundance-leaf/40 blur-3xl"
         aria-hidden="true"
       />
 
       <svg
         viewBox="0 0 200 240"
-        className="absolute left-1/2 top-1/2 h-[70vh] w-auto -translate-x-1/2 -translate-y-[60%]"
+        className="absolute left-1/2 top-1/2 h-[78vh] w-auto -translate-x-1/2 -translate-y-[56%] opacity-90"
         aria-hidden="true"
       >
         {BRANCHES.map((d, i) => (
@@ -156,17 +192,62 @@ export default function Hero() {
         ))}
       </svg>
 
-      <div ref={headlineRef} className="relative z-10 px-6 text-center">
-        <p className="mb-2 font-body text-sm uppercase tracking-[0.3em] text-abundance-leaf">
+      {/* legibility scrim behind the headline */}
+      <div
+        className="absolute inset-0 bg-gradient-to-t from-abundance-night/70 via-transparent to-abundance-night/40"
+        aria-hidden="true"
+      />
+
+      {/* Starts hidden so the desktop scrub sequence can't flash the headline
+          before the effect runs. The <noscript> rule in app/layout.tsx forces
+          it visible if JavaScript never executes. */}
+      <div
+        ref={contentRef}
+        data-reveal
+        style={{ opacity: 0 }}
+        className="container-px relative z-10 text-center"
+      >
+        <p className="font-body text-xs font-semibold uppercase tracking-[0.35em] text-abundance-leaf">
           {hero.eyebrow}
         </p>
-        <h1 className="font-display text-5xl font-semibold text-abundance-offwhite drop-shadow-lg sm:text-6xl md:text-7xl">
+        <h1 className="mt-4 font-display text-5xl font-semibold leading-[1.05] text-white drop-shadow-lg sm:text-7xl md:text-8xl">
           {hero.headline}
         </h1>
-        <p className="mx-auto mt-4 max-w-xl font-body text-base text-abundance-offwhite/90 sm:text-lg">
+        <p className="mx-auto mt-5 max-w-xl font-body text-sm text-white/85 sm:text-lg">
           {hero.subline}
         </p>
+
+        <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
+          <Link
+            href={hero.cta.href}
+            className="rounded-full bg-abundance-leaf px-7 py-3 font-body text-sm font-semibold text-white shadow-lg transition-transform hover:scale-105"
+          >
+            {hero.cta.label}
+          </Link>
+          <Link
+            href={hero.ctaSecondary.href}
+            className="rounded-full border border-white/40 px-7 py-3 font-body text-sm font-semibold text-white backdrop-blur-sm transition-colors hover:bg-white/10"
+          >
+            {hero.ctaSecondary.label}
+          </Link>
+        </div>
+      </div>
+
+      <div
+        className="absolute bottom-6 left-1/2 -translate-x-1/2 text-[0.6rem] uppercase tracking-[0.3em] text-white/50"
+        aria-hidden="true"
+      >
+        Scroll
       </div>
     </section>
   );
+}
+
+/**
+ * Marker rendered immediately after the hero. ScrollTrigger's pin spacer makes
+ * the hero occupy far more scroll distance than one viewport, so Nav watches
+ * this element to know when the dark hero has genuinely left the screen.
+ */
+export function HeroEnd() {
+  return <div id="hero-end" aria-hidden="true" />;
 }
