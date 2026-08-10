@@ -14,8 +14,11 @@ import { getText, getPublishedEvents } from "@/lib/content-source";
 export const revalidate = 300;
 
 export default async function HomePage() {
-  const [missionStatement, events] = await Promise.all([
+  const [missionStatement, missionBody, introHeading, introBody, events] = await Promise.all([
     getText("mission.statement", mission.statement),
+    getText("mission.body", mission.body),
+    getText("home.introHeading", homeIntro.heading),
+    getText("home.introBody", homeIntro.body),
     getPublishedEvents(3),
   ]);
 
@@ -31,14 +34,14 @@ export default async function HomePage() {
             <Reveal>
               <Eyebrow tone="green">{homeIntro.eyebrow}</Eyebrow>
               <h2 className="mt-5 font-display text-fluid-2xl font-semibold leading-[1.05] text-abundance-blue">
-                {homeIntro.heading}
+                {introHeading}
               </h2>
             </Reveal>
           </div>
           <div className="lg:col-span-5">
             <Reveal delay={0.1}>
               <p className="font-body text-fluid-base leading-relaxed text-abundance-night/70">
-                {homeIntro.body}
+                {introBody}
               </p>
               <div className="mt-6">
                 <ArrowLink href="/about">Meet our church family</ArrowLink>
@@ -70,7 +73,7 @@ export default async function HomePage() {
             </Reveal>
             <Reveal delay={0.16}>
               <p className="mt-8 max-w-prose font-body text-fluid-base leading-relaxed text-white/70">
-                {mission.body}
+                {missionBody}
               </p>
             </Reveal>
           </div>
