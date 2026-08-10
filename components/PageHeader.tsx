@@ -35,7 +35,7 @@ export default function PageHeader({
           initial={{ opacity: 0, y: reduced ? 0 : 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="font-body text-xs font-semibold uppercase tracking-[0.3em] text-abundance-leaf"
+          className="font-body text-fluid-sm font-semibold uppercase tracking-eyebrow text-abundance-leaf"
         >
           {eyebrow}
         </motion.p>
@@ -43,7 +43,7 @@ export default function PageHeader({
           initial={{ opacity: 0, y: reduced ? 0 : 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.08 }}
-          className="mt-3 font-display text-4xl font-semibold text-white sm:text-5xl md:text-6xl"
+          className="mt-4 font-display text-fluid-3xl font-semibold leading-[1.03] text-white"
         >
           {title}
         </motion.h1>
@@ -52,7 +52,7 @@ export default function PageHeader({
             initial={{ opacity: 0, y: reduced ? 0 : 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.16 }}
-            className="mx-auto mt-5 max-w-2xl font-body text-base leading-relaxed text-white/80 sm:text-lg"
+            className="mx-auto mt-6 max-w-prose font-body text-fluid-base leading-relaxed text-white/80"
           >
             {intro}
           </motion.p>
