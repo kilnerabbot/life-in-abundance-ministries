@@ -37,28 +37,42 @@ export default function HomePage() {
         </div>
       </Section>
 
-      {/* 03 — MISSION MANIFESTO: typography as the hero */}
+      {/* 03 — THE PROMISE: two columns, text left, art panel right */}
       <section
         aria-labelledby="mission-heading"
-        className="relative overflow-hidden bg-abundance-blue py-24 sm:py-32 lg:py-44"
+        className="relative overflow-hidden bg-abundance-blue py-24 sm:py-32 lg:py-40"
       >
         <LeafField count={9} speed={-80} opacity={0.1} />
-        <div className="container-px relative z-10 mx-auto max-w-editorial">
-          <Reveal>
-            <Eyebrow tone="leaf">{mission.heading}</Eyebrow>
-          </Reveal>
-          <Reveal delay={0.08}>
-            <p
-              id="mission-heading"
-              className="mt-8 max-w-5xl font-display text-fluid-3xl font-medium leading-[1.03] text-white"
+        <div className="container-px relative z-10 mx-auto grid max-w-editorial items-center gap-12 lg:grid-cols-2 lg:gap-16">
+          {/* Text */}
+          <div>
+            <Reveal>
+              <Eyebrow tone="leaf">{mission.heading}</Eyebrow>
+            </Reveal>
+            <Reveal delay={0.08}>
+              <p
+                id="mission-heading"
+                className="mt-8 font-display text-fluid-2xl font-medium leading-[1.05] text-white"
+              >
+                {mission.statement}
+              </p>
+            </Reveal>
+            <Reveal delay={0.16}>
+              <p className="mt-8 max-w-prose font-body text-fluid-base leading-relaxed text-white/70">
+                {mission.body}
+              </p>
+            </Reveal>
+          </div>
+
+          {/* Art panel — rounded 50px */}
+          <Reveal delay={0.12}>
+            <div
+              className="relative aspect-[4/5] overflow-hidden shadow-soft-lg"
+              style={{ borderRadius: "50px" }}
             >
-              {mission.statement}
-            </p>
-          </Reveal>
-          <Reveal delay={0.16}>
-            <p className="mt-10 max-w-prose font-body text-fluid-base leading-relaxed text-white/70">
-              {mission.body}
-            </p>
+              <MissionArt />
+              <div className="absolute inset-0 bg-gradient-to-t from-abundance-night/50 via-transparent to-transparent" />
+            </div>
           </Reveal>
         </div>
       </section>
@@ -243,5 +257,54 @@ export default function HomePage() {
         </div>
       </section>
     </>
+  );
+}
+
+/** Original SVG art panel for The Promise — abundant tree over a warm dawn,
+ *  echoing the logo and hero. No stock photography (brand rule). */
+function MissionArt() {
+  return (
+    <svg
+      viewBox="0 0 400 500"
+      className="h-full w-full"
+      preserveAspectRatio="xMidYMid slice"
+      aria-hidden="true"
+    >
+      <defs>
+        <linearGradient id="promise-sky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#123B53" />
+          <stop offset="55%" stopColor="#1B5A7D" />
+          <stop offset="100%" stopColor="#E8C97A" />
+        </linearGradient>
+      </defs>
+      <rect width="400" height="500" fill="url(#promise-sky)" />
+      {/* sun/seed of light */}
+      <circle cx="200" cy="360" r="70" fill="#F7F7F2" opacity="0.18" />
+      <circle cx="200" cy="360" r="42" fill="#F7F7F2" opacity="0.28" />
+      {/* trunk + branches */}
+      <g stroke="#3E7C3A" strokeWidth="6" fill="none" strokeLinecap="round">
+        <path d="M200 500 V250" />
+        <path d="M200 320 C 150 285, 95 270, 55 240" />
+        <path d="M200 320 C 250 285, 305 270, 345 240" />
+        <path d="M200 260 C 170 215, 155 190, 130 158" />
+        <path d="M200 260 C 230 215, 245 190, 270 158" />
+        <path d="M200 250 C 200 200, 200 165, 200 120" />
+      </g>
+      {/* canopy leaves */}
+      <g fill="#7AB648">
+        <circle cx="55" cy="240" r="26" />
+        <circle cx="345" cy="240" r="26" />
+        <circle cx="130" cy="158" r="24" />
+        <circle cx="270" cy="158" r="24" />
+        <circle cx="200" cy="120" r="32" />
+        <circle cx="200" cy="175" r="22" />
+      </g>
+      <g fill="#A5D078" opacity="0.85">
+        <circle cx="95" cy="200" r="14" />
+        <circle cx="305" cy="200" r="14" />
+        <circle cx="165" cy="130" r="12" />
+        <circle cx="235" cy="130" r="12" />
+      </g>
+    </svg>
   );
 }
