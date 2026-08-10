@@ -3,11 +3,22 @@ import ProgrammeBoard from "@/components/ProgrammeBoard";
 import VerseOfDay from "@/components/VerseOfDay";
 import Countdown from "@/components/Countdown";
 import ServiceBlocks from "@/components/ServiceBlocks";
+import UpcomingEvents from "@/components/UpcomingEvents";
 import { Reveal, LeafField } from "@/components/Motion";
 import { Eyebrow, Btn, ArrowLink, Section } from "@/components/UI";
 import { homeIntro, mission, shepherd, contact, give, site, programmes } from "@/content";
+import { getText, getPublishedEvents } from "@/lib/content-source";
 
-export default function HomePage() {
+// Revalidate every 5 min: reads published CMS/events from the DB when it is
+// configured, otherwise the helpers fall back to content.ts instantly.
+export const revalidate = 300;
+
+export default async function HomePage() {
+  const [missionStatement, events] = await Promise.all([
+    getText("mission.statement", mission.statement),
+    getPublishedEvents(3),
+  ]);
+
   return (
     <>
       <Hero />
@@ -54,7 +65,7 @@ export default function HomePage() {
                 id="mission-heading"
                 className="mt-8 font-display text-fluid-2xl font-medium leading-[1.05] text-white"
               >
-                {mission.statement}
+                {missionStatement}
               </p>
             </Reveal>
             <Reveal delay={0.16}>
@@ -151,6 +162,9 @@ export default function HomePage() {
 
       {/* 07 — VERSE OF THE DAY */}
       <VerseOfDay />
+
+      {/* 07b — UPCOMING EVENTS (from CMS; renders only when events exist) */}
+      <UpcomingEvents events={events} />
 
       {/* 08 — CALL TO BELONG */}
       <section

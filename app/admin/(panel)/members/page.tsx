@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { requireProfile, EDITORS } from "@/lib/supabase/roles";
 import { PageHeading, Table, Card, Field, SubmitButton, EmptyState } from "@/components/admin/ui";
+import DeleteButton from "@/components/admin/DeleteButton";
 import { createMember } from "./actions";
 
 export default async function MembersPage() {
@@ -15,12 +16,23 @@ export default async function MembersPage() {
 
   return (
     <>
-      <PageHeading title="Members" subtitle="Your congregation directory." />
+      <PageHeading
+        title="Members"
+        subtitle="Your congregation directory."
+        action={
+          <a
+            href="/admin/members/export"
+            className="rounded-lg border border-brand-200 px-4 py-2 font-body text-sm font-semibold text-abundance-blue transition-colors hover:bg-brand-50"
+          >
+            Export CSV
+          </a>
+        }
+      />
 
       <div className="grid gap-8 lg:grid-cols-[1fr_20rem]">
         <div>
           {members && members.length > 0 ? (
-            <Table head={["Name", "Phone", "Status", "Joined"]}>
+            <Table head={["Name", "Phone", "Status", "Joined", canEdit ? "" : "​"]}>
               {members.map((m) => (
                 <tr key={m.id} className="font-body text-sm text-abundance-night/80">
                   <td className="px-4 py-3 font-medium text-abundance-blue">
@@ -29,6 +41,11 @@ export default async function MembersPage() {
                   <td className="px-4 py-3">{m.phone || "—"}</td>
                   <td className="px-4 py-3 capitalize">{m.status}</td>
                   <td className="px-4 py-3">{m.joined_on || "—"}</td>
+                  <td className="px-4 py-3 text-right">
+                    {canEdit && (
+                      <DeleteButton table="members" id={m.id} label={`${m.first_name} ${m.last_name}`} />
+                    )}
+                  </td>
                 </tr>
               ))}
             </Table>

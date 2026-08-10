@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { requireProfile, EDITORS } from "@/lib/supabase/roles";
 import { PageHeading, Table, Card, Field, SubmitButton, EmptyState } from "@/components/admin/ui";
+import DeleteButton from "@/components/admin/DeleteButton";
 import { recordAttendance } from "./actions";
 import { programmes } from "@/content";
 
@@ -22,13 +23,18 @@ export default async function AttendancePage() {
       <div className="grid gap-8 lg:grid-cols-[1fr_20rem]">
         <div>
           {rows && rows.length > 0 ? (
-            <Table head={["Date", "Service", "Present", "First-timers"]}>
+            <Table head={["Date", "Service", "Present", "First-timers", canEdit ? "" : "​"]}>
               {rows.map((r) => (
                 <tr key={r.id} className="font-body text-sm text-abundance-night/80">
                   <td className="px-4 py-3">{r.service_date}</td>
                   <td className="px-4 py-3 font-medium text-abundance-blue">{r.service_name}</td>
                   <td className="px-4 py-3">{r.head_count}</td>
                   <td className="px-4 py-3">{r.first_timers}</td>
+                  <td className="px-4 py-3 text-right">
+                    {canEdit && (
+                      <DeleteButton table="attendance" id={r.id} label={`${r.service_name} ${r.service_date}`} />
+                    )}
+                  </td>
                 </tr>
               ))}
             </Table>

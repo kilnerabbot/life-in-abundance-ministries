@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { requireRole, FINANCE } from "@/lib/supabase/roles";
 import { PageHeading, Table, Card, Field, SubmitButton, EmptyState } from "@/components/admin/ui";
+import DeleteButton from "@/components/admin/DeleteButton";
 import { recordGift } from "./actions";
 
 const FUNDS = [
@@ -34,6 +35,14 @@ export default async function GivingPage() {
       <PageHeading
         title="Giving"
         subtitle="Tithes and offerings. Visible to finance roles only."
+        action={
+          <a
+            href="/admin/giving/export"
+            className="rounded-lg border border-brand-200 px-4 py-2 font-body text-sm font-semibold text-abundance-blue transition-colors hover:bg-brand-50"
+          >
+            Export CSV
+          </a>
+        }
       />
 
       <div className="grid gap-8 lg:grid-cols-[1fr_20rem]">
@@ -44,7 +53,7 @@ export default async function GivingPage() {
                 Showing last {gifts.length} — total{" "}
                 <strong className="text-abundance-blue">R {total.toLocaleString("en-ZA")}</strong>
               </p>
-              <Table head={["Date", "Amount", "Fund", "Method", "Reference"]}>
+              <Table head={["Date", "Amount", "Fund", "Method", "Reference", ""]}>
                 {gifts.map((g) => (
                   <tr key={g.id} className="font-body text-sm text-abundance-night/80">
                     <td className="px-4 py-3">{g.given_on}</td>
@@ -54,6 +63,9 @@ export default async function GivingPage() {
                     <td className="px-4 py-3 capitalize">{g.fund}</td>
                     <td className="px-4 py-3 uppercase">{g.method}</td>
                     <td className="px-4 py-3">{g.reference || "—"}</td>
+                    <td className="px-4 py-3 text-right">
+                      <DeleteButton table="giving" id={g.id} label="this gift" />
+                    </td>
                   </tr>
                 ))}
               </Table>
