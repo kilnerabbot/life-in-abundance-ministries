@@ -11,6 +11,9 @@ const DELETABLE: Record<string, string> = {
   giving: "/admin/giving",
   events: "/admin/events",
   attendance: "/admin/attendance",
+  visitors: "/admin/visitors",
+  ministries: "/admin/ministries",
+  prayer_requests: "/admin/prayer",
 };
 
 export async function deleteRow(formData: FormData) {

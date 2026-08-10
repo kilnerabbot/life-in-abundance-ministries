@@ -11,13 +11,22 @@ export default async function DashboardPage({
   const supabase = createClient();
 
   // count-only queries (head:true) — cheap, RLS-filtered.
-  const [{ count: members }, { count: events }] = await Promise.all([
-    supabase.from("members").select("*", { count: "exact", head: true }),
-    supabase
-      .from("events")
-      .select("*", { count: "exact", head: true })
-      .gte("starts_at", new Date().toISOString()),
-  ]);
+  const [{ count: members }, { count: events }, { count: visitors }, { count: prayers }] =
+    await Promise.all([
+      supabase.from("members").select("*", { count: "exact", head: true }),
+      supabase
+        .from("events")
+        .select("*", { count: "exact", head: true })
+        .gte("starts_at", new Date().toISOString()),
+      supabase
+        .from("visitors")
+        .select("*", { count: "exact", head: true })
+        .neq("status", "closed"),
+      supabase
+        .from("prayer_requests")
+        .select("*", { count: "exact", head: true })
+        .neq("status", "completed"),
+    ]);
 
   const canSeeGiving = FINANCE.includes(profile.role);
   let givingThisMonth = 0;
@@ -53,6 +62,8 @@ export default async function DashboardPage({
 
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="Members" value={members ?? 0} />
+        <StatCard label="Open Visitors" value={visitors ?? 0} />
+        <StatCard label="Prayer Requests" value={prayers ?? 0} />
         <StatCard label="Upcoming Events" value={events ?? 0} />
         {canSeeGiving && (
           <StatCard
@@ -60,10 +71,7 @@ export default async function DashboardPage({
             value={`R ${givingThisMonth.toLocaleString("en-ZA")}`}
           />
         )}
-        <StatCard
-          label="Last Attendance"
-          value={lastAtt ? lastAtt.head_count : "—"}
-        />
+        <StatCard label="Last Attendance" value={lastAtt ? lastAtt.head_count : "—"} />
       </div>
 
       <div className="mt-8">
