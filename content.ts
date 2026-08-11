@@ -378,8 +378,13 @@ export const give = {
 
 export const contact = {
   heading: "Find Us / Join Us",
-  address: "[STREET ADDRESS], Johannesburg",
+  address: "5 Kindon Rd, Robertsham, Johannesburg South, 2091",
   addressNote: "Full street address coming soon — call or WhatsApp us and we will guide you in.",
+  // Exact coordinates for the map pin. Free-text address search can match a
+  // nearby business name instead of the literal address (e.g. "Kindon Rd"
+  // resolving to an unrelated "Kingdom"-named POI) — pinning lat/lng sidesteps
+  // that entirely.
+  coords: { lat: -26.2473702, lng: 28.0129333, zoom: 17 },
   phones: [
     { display: "081 400 3228", tel: "+27814003228" },
     { display: "073 409 5254", tel: "+27734095254" },
