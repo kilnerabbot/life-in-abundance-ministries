@@ -32,4 +32,6 @@ export async function saveContent(formData: FormData) {
 
   if (error) throw new Error(error.message);
   revalidatePath("/admin/cms");
+  // CMS keys drive copy across the public site; refresh every public page.
+  revalidatePath("/", "layout");
 }

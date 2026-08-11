@@ -3,13 +3,22 @@ import PageHeader from "@/components/PageHeader";
 import ProgrammeBoard from "@/components/ProgrammeBoard";
 import { Reveal } from "@/components/Motion";
 import { contact, site } from "@/content";
+import { getText } from "@/lib/content-source";
 
 export const metadata: Metadata = {
   title: "Contact & Directions",
   description: `Find ${site.name} in ${site.city}. Call 081 400 3228 or 073 409 5254, or message us on WhatsApp to plan your visit.`,
 };
 
-export default function ContactPage() {
+export const revalidate = 300;
+
+export default async function ContactPage() {
+  const address = await getText("contact.address", contact.address);
+  const isPlaceholder = address.includes("[");
+  const mapSrc = isPlaceholder
+    ? contact.mapEmbedSrc
+    : `https://www.google.com/maps?q=${encodeURIComponent(address)}&output=embed`;
+
   const whatsappHref = `https://wa.me/${contact.whatsappNumber}?text=${encodeURIComponent(
     contact.whatsappMessage
   )}`;
@@ -36,11 +45,13 @@ export default function ContactPage() {
               </h3>
               <address className="mt-3 not-italic">
                 <p className="font-display text-2xl font-semibold text-abundance-blue">
-                  {contact.address}
+                  {address}
                 </p>
-                <p className="mt-2 font-body text-sm text-abundance-night/60">
-                  {contact.addressNote}
-                </p>
+                {isPlaceholder && (
+                  <p className="mt-2 font-body text-sm text-abundance-night/60">
+                    {contact.addressNote}
+                  </p>
+                )}
               </address>
 
               <hr className="my-6 border-abundance-blue/10" />
@@ -80,7 +91,7 @@ export default function ContactPage() {
             <div className="h-full overflow-hidden rounded-2xl shadow-lg ring-1 ring-abundance-blue/10">
               <iframe
                 title={`Map showing ${site.city}, South Africa`}
-                src={contact.mapEmbedSrc}
+                src={mapSrc}
                 className="h-full w-full"
                 style={{ border: 0, minHeight: 420 }}
                 loading="lazy"
