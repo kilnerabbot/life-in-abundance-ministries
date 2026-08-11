@@ -42,7 +42,10 @@ const GROUPS: Group[] = [
   },
   {
     heading: "Website",
-    items: [{ href: "/admin/cms", label: "Site Content", roles: ["pastor", "admin"] }],
+    items: [
+      { href: "/admin/cms", label: "Site Content", roles: ["pastor", "admin"] },
+      { href: "/admin/media", label: "Media & Gallery", roles: ["pastor", "admin"] },
+    ],
   },
 ];
 

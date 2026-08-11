@@ -40,6 +40,47 @@ export async function getPublishedEvents(limit = 6): Promise<PublicEvent[]> {
  * DB is unconfigured, the row is missing/unpublished, or anything errors.
  * This lets the CMS drive public copy without ever risking a blank page.
  */
+export type GalleryImage = { id: string; url: string; caption: string | null };
+
+/** Published gallery images for the public About page. [] when unset/errored. */
+export async function getGallery(limit = 24): Promise<GalleryImage[]> {
+  const supabase = createServiceClient();
+  if (!supabase) return [];
+  try {
+    const { data, error } = await supabase
+      .from("gallery")
+      .select("id, url, caption")
+      .eq("published", true)
+      .order("sort_order")
+      .limit(limit);
+    if (error) return [];
+    return (data ?? []) as GalleryImage[];
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Uploaded image URL for a CMS image slot (e.g. "home.missionImage"), or null
+ * when unset/empty/errored — callers fall back to their built-in SVG art.
+ */
+export async function getImage(key: string): Promise<string | null> {
+  const supabase = createServiceClient();
+  if (!supabase) return null;
+  try {
+    const { data, error } = await supabase
+      .from("cms_content")
+      .select("data, published")
+      .eq("key", key)
+      .maybeSingle();
+    if (error || !data || !data.published) return null;
+    const url = (data.data as { url?: string } | null)?.url;
+    return typeof url === "string" && url.trim() ? url : null;
+  } catch {
+    return null;
+  }
+}
+
 export async function getText(key: string, fallback: string): Promise<string> {
   const supabase = createServiceClient();
   if (!supabase) return fallback;

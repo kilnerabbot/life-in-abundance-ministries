@@ -7,20 +7,22 @@ import UpcomingEvents from "@/components/UpcomingEvents";
 import { Reveal, LeafField } from "@/components/Motion";
 import { Eyebrow, Btn, ArrowLink, Section } from "@/components/UI";
 import { homeIntro, mission, shepherd, contact, give, site, programmes } from "@/content";
-import { getText, getPublishedEvents } from "@/lib/content-source";
+import { getText, getPublishedEvents, getImage } from "@/lib/content-source";
 
 // Revalidate every 5 min: reads published CMS/events from the DB when it is
 // configured, otherwise the helpers fall back to content.ts instantly.
 export const revalidate = 300;
 
 export default async function HomePage() {
-  const [missionStatement, missionBody, introHeading, introBody, events] = await Promise.all([
-    getText("mission.statement", mission.statement),
-    getText("mission.body", mission.body),
-    getText("home.introHeading", homeIntro.heading),
-    getText("home.introBody", homeIntro.body),
-    getPublishedEvents(3),
-  ]);
+  const [missionStatement, missionBody, introHeading, introBody, missionImage, events] =
+    await Promise.all([
+      getText("mission.statement", mission.statement),
+      getText("mission.body", mission.body),
+      getText("home.introHeading", homeIntro.heading),
+      getText("home.introBody", homeIntro.body),
+      getImage("home.missionImage"),
+      getPublishedEvents(3),
+    ]);
 
   return (
     <>
@@ -84,7 +86,16 @@ export default async function HomePage() {
               className="relative aspect-[4/5] overflow-hidden shadow-soft-lg"
               style={{ borderRadius: "50px" }}
             >
-              <MissionArt />
+              {missionImage ? (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img
+                  src={missionImage}
+                  alt="Life in Abundance Ministries"
+                  className="absolute inset-0 h-full w-full object-cover"
+                />
+              ) : (
+                <MissionArt />
+              )}
               <div className="absolute inset-0 bg-gradient-to-t from-abundance-night/50 via-transparent to-transparent" />
             </div>
           </Reveal>

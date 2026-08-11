@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import PageHeader from "@/components/PageHeader";
 import Shepherd from "@/components/Shepherd";
+import Gallery from "@/components/Gallery";
 import { Reveal, LeafField } from "@/components/Motion";
+import { getGallery } from "@/lib/content-source";
 import { story, beliefs, mission, site, contact } from "@/content";
 
 export const metadata: Metadata = {
@@ -10,7 +12,10 @@ export const metadata: Metadata = {
   description: `Meet the church family at ${site.name} in ${site.city} — our story, what we believe, and our senior pastor Rev. Elijah Takyi Hansen.`,
 };
 
-export default function AboutPage() {
+export const revalidate = 300;
+
+export default async function AboutPage() {
+  const gallery = await getGallery();
   return (
     <>
       <PageHeader
@@ -72,6 +77,8 @@ export default function AboutPage() {
       </section>
 
       <Shepherd />
+
+      <Gallery images={gallery} />
 
       {/* What we believe */}
       <section aria-labelledby="beliefs-heading" className="bg-white py-20 sm:py-28">
