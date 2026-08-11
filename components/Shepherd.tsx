@@ -37,10 +37,10 @@ export default async function Shepherd() {
   const portrait = await getImage("home.pastorImage");
   return (
     <section aria-labelledby="shepherd-heading" className="bg-abundance-offwhite py-20 sm:py-28">
-      <div className="container-px mx-auto grid max-w-5xl items-center gap-10 md:grid-cols-[18rem_minmax(0,1fr)] md:gap-14">
-        <Reveal className="mx-auto w-56 md:w-72">
+      <div className="container-px mx-auto grid max-w-5xl items-center gap-10 md:grid-cols-[24rem_minmax(0,1fr)] md:gap-14">
+        <Reveal className="mx-auto w-full max-w-sm">
           <div className="overflow-hidden rounded-2xl shadow-xl ring-1 ring-abundance-blue/10">
-            <div className="aspect-square">
+            <div className="aspect-[3/4]">
               {portrait ? (
                 /* eslint-disable-next-line @next/next/no-img-element */
                 <img
