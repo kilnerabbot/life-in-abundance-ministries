@@ -32,7 +32,7 @@ const LEAVES = [
 
 type MotionMode = "full" | "simple" | "none";
 
-export default function Hero() {
+export default function Hero({ heroImage }: { heroImage?: string | null }) {
   const sectionRef = useRef<HTMLElement>(null);
   const pinRef = useRef<HTMLDivElement>(null);
   const bgRef = useRef<HTMLDivElement>(null);
@@ -167,44 +167,60 @@ export default function Hero() {
       >
         <div ref={bgRef} className="absolute inset-0 bg-abundance-night" />
 
-        {/* the seed of light the tree grows from */}
-        <div
-          ref={glowRef}
-          className="absolute left-1/2 top-[64%] h-40 w-40 -translate-x-1/2 -translate-y-1/2 rounded-full bg-abundance-leaf/40 blur-3xl"
-          aria-hidden="true"
-        />
+        {/* Uploaded hero photo (CMS: home.heroImage). Replaces the SVG art
+            when set; the tree animation stays for the default/no-image case. */}
+        {heroImage && (
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img
+            src={heroImage}
+            alt=""
+            className="absolute inset-0 h-full w-full object-cover"
+            aria-hidden="true"
+          />
+        )}
 
-        <svg
-          viewBox="0 0 200 240"
-          className="absolute left-1/2 top-1/2 h-[78vh] w-auto -translate-x-1/2 -translate-y-[56%] opacity-90"
-          aria-hidden="true"
-        >
-          {BRANCHES.map((d, i) => (
-            <path
-              key={d}
-              ref={(el) => {
-                branchRefs.current[i] = el;
-              }}
-              d={d}
-              fill="none"
-              stroke="#7AB648"
-              strokeWidth={3}
-              strokeLinecap="round"
-            />
-          ))}
-          {LEAVES.map((leaf, i) => (
-            <circle
-              key={`${leaf.cx}-${leaf.cy}`}
-              ref={(el) => {
-                leafRefs.current[i] = el;
-              }}
-              cx={leaf.cx}
-              cy={leaf.cy}
-              r={leaf.r}
-              fill="#7AB648"
-            />
-          ))}
-        </svg>
+        {/* the seed of light the tree grows from */}
+        {!heroImage && (
+          <div
+            ref={glowRef}
+            className="absolute left-1/2 top-[64%] h-40 w-40 -translate-x-1/2 -translate-y-1/2 rounded-full bg-abundance-leaf/40 blur-3xl"
+            aria-hidden="true"
+          />
+        )}
+
+        {!heroImage && (
+          <svg
+            viewBox="0 0 200 240"
+            className="absolute left-1/2 top-1/2 h-[78vh] w-auto -translate-x-1/2 -translate-y-[56%] opacity-90"
+            aria-hidden="true"
+          >
+            {BRANCHES.map((d, i) => (
+              <path
+                key={d}
+                ref={(el) => {
+                  branchRefs.current[i] = el;
+                }}
+                d={d}
+                fill="none"
+                stroke="#7AB648"
+                strokeWidth={3}
+                strokeLinecap="round"
+              />
+            ))}
+            {LEAVES.map((leaf, i) => (
+              <circle
+                key={`${leaf.cx}-${leaf.cy}`}
+                ref={(el) => {
+                  leafRefs.current[i] = el;
+                }}
+                cx={leaf.cx}
+                cy={leaf.cy}
+                r={leaf.r}
+                fill="#7AB648"
+              />
+            ))}
+          </svg>
+        )}
 
         {/* legibility scrim behind the headline */}
         <div

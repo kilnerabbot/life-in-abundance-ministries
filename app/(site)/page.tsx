@@ -14,19 +14,20 @@ import { getText, getPublishedEvents, getImage } from "@/lib/content-source";
 export const revalidate = 300;
 
 export default async function HomePage() {
-  const [missionStatement, missionBody, introHeading, introBody, missionImage, events] =
+  const [missionStatement, missionBody, introHeading, introBody, missionImage, heroImage, events] =
     await Promise.all([
       getText("mission.statement", mission.statement),
       getText("mission.body", mission.body),
       getText("home.introHeading", homeIntro.heading),
       getText("home.introBody", homeIntro.body),
       getImage("home.missionImage"),
+      getImage("home.heroImage"),
       getPublishedEvents(3),
     ]);
 
   return (
     <>
-      <Hero />
+      <Hero heroImage={heroImage} />
       <HeroEnd />
 
       {/* 02 — INTRODUCTION: editorial two-column, text-led */}
