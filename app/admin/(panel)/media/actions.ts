@@ -20,6 +20,7 @@ export async function addGalleryImage(formData: FormData) {
   });
   if (error) throw new Error(error.message);
   revalidatePath("/admin/media");
+  revalidatePath("/about");
 }
 
 /** Set an image slot's URL (e.g. home.missionImage) from an upload. */
@@ -34,4 +35,5 @@ export async function setImageSlot(formData: FormData) {
     .eq("key", key);
   if (error) throw new Error(error.message);
   revalidatePath("/admin/media");
+  revalidatePath("/");
 }

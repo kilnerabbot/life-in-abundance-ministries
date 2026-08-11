@@ -29,4 +29,5 @@ export async function deleteRow(formData: FormData) {
   if (error) throw new Error(error.message);
 
   revalidatePath(path);
+  if (table === "gallery") revalidatePath("/about");
 }
