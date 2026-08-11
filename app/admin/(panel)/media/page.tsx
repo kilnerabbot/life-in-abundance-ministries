@@ -8,6 +8,7 @@ import { addGalleryImage, setImageSlot } from "./actions";
 const SLOT_LABELS: Record<string, string> = {
   "home.missionImage": "Homepage — The Promise image",
   "home.heroImage": "Homepage — Hero image",
+  "home.pastorImage": "About — Pastor portrait",
 };
 
 export default async function MediaPage() {
