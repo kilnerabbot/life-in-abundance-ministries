@@ -15,9 +15,12 @@ export const revalidate = 300;
 export default async function ContactPage() {
   const address = await getText("contact.address", contact.address);
   const isPlaceholder = address.includes("[");
+  // Plain "q=<address>" is a free-text search — Google Maps can match a
+  // nearby business name over the literal address. Biasing the query with
+  // the church name keeps the pin on us instead of a neighboring POI.
   const mapSrc = isPlaceholder
     ? contact.mapEmbedSrc
-    : `https://www.google.com/maps?q=${encodeURIComponent(address)}&output=embed`;
+    : `https://www.google.com/maps?q=${encodeURIComponent(`${site.name}, ${address}`)}&output=embed`;
 
   const whatsappHref = `https://wa.me/${contact.whatsappNumber}?text=${encodeURIComponent(
     contact.whatsappMessage
