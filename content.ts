@@ -33,10 +33,9 @@ export const hero = {
 
 export const mission = {
   heading: "The Promise",
-  // Wording matches the church's physical signage exactly ("Walk on", not
-  // "Walk in") — confirmed by the pastor. Do not "correct" this.
+  // Wording per the ministry's official belief/vision statement ("walk in").
   statement:
-    "To Cause People to See, Experience and Walk on the Abundant Life that Jesus Came to Give Us.",
+    "To Cause People to See, Experience and Walk in the Abundant Life that Jesus Came to Give Us.",
   body: "Abundance is not a reward reserved for a distant day. It is the life Jesus purchased and handed to us now — in our homes, our work, our health, our relationships and our hope. Everything we do here exists to help you see that life clearly, taste it personally, and then walk in it daily.",
 };
 
@@ -106,32 +105,157 @@ export const whatToExpect = [
   },
 ];
 
-export const beliefs = [
+// The ministry's authoritative 14-point Belief Statement (John 10), condensed
+// to a title, a plain-language summary, and the supporting Scripture refs.
+export type Belief = { title: string; body: string; ref: string };
+
+export const beliefs: Belief[] = [
   {
-    title: "The Word of God",
-    body: "We believe the Bible is the inspired, trustworthy Word of God and the final authority for what we believe and how we live.",
+    title: "The Scriptures",
+    body: "All Scripture, Old and New Testament, forms one covenant given by the inspiration of God as the writers were moved by the Holy Spirit — the rule of faith and practice for the Christian.",
+    ref: "2 Timothy 3:16; 2 Peter 1:20-21",
+  },
+  {
+    title: "One Triune God",
+    body: "We believe in the one true God who has revealed Himself in three persons — Father, Son and Holy Spirit — distinguishable, but indivisible.",
+    ref: "Matthew 28:19; Luke 3:21-22",
+  },
+  {
+    title: "Humanity & the Fall",
+    body: "The human race was created in God's image to have dominion, until sin entered by disobedience and left humanity in need of a Savior to reconnect them with their life source.",
+    ref: "Romans 5:12; Genesis 1:27",
   },
   {
     title: "Jesus Christ",
-    body: "We believe Jesus is the Son of God, crucified for our sin, risen from the dead, and returning again. Salvation is found in Him alone.",
+    body: "Jesus Christ is the Son of God, conceived of the Holy Spirit, born of the virgin Mary — very God and very Man.",
+    ref: "Luke 1:26-35; John 1:1,14; Isaiah 7:14",
   },
   {
-    title: "The Holy Spirit",
-    body: "We believe the Holy Spirit fills, gifts and empowers believers today, just as He did in the book of Acts.",
+    title: "Death & Resurrection",
+    body: "Christ our Savior died for our sins, was buried, and rose again the third day according to the Scriptures, appearing to His disciples.",
+    ref: "1 Corinthians 15:1-8; Romans 4:25",
   },
   {
-    title: "Healing & Wholeness",
-    body: "We believe God still heals — bodies, minds, marriages and futures — and we pray boldly and expectantly for it.",
+    title: "Ascension & Return",
+    body: "We believe in the bodily ascension of Jesus, His exaltation as Lord at the Father's right hand, and His return in glory for a glorious Church.",
+    ref: "John 14:2-3; 1 Thessalonians 4:13-18",
   },
   {
-    title: "The Abundant Life",
-    body: "We believe John 10:10 is a present-tense promise. Christ came so that His people would live full, overflowing lives.",
+    title: "Salvation by Grace",
+    body: "Sinners are saved by grace through repentance and faith in the perfect, sufficient work of Christ on the cross, obtaining remission of sins through His shed blood.",
+    ref: "Ephesians 2:8-9; Hebrews 9:12-14",
   },
   {
-    title: "The Local Church",
-    body: "We believe every believer belongs in a family. Faith is not meant to be carried alone, and neither is hardship.",
+    title: "Water Baptism",
+    body: "Water baptism is the obedient response to the Lord's command, picturing the believer's complete release from the bondages and afflictions of their past life.",
+    ref: "Matthew 28:19; Acts 2:38; Romans 6:4",
+  },
+  {
+    title: "Baptism in the Holy Spirit",
+    body: "We believe in the baptism of the Holy Spirit — the promise of the Father for the empowering and maturing of the Christian, with His accompanying gifts and fruit.",
+    ref: "Acts 2:1-4; Galatians 3:14",
+  },
+  {
+    title: "The Church",
+    body: "The Church is the body of Christ and the expression of God's Kingdom on earth. Christ gave apostles, prophets, evangelists, pastors and teachers to prepare disciples for works of service.",
+    ref: "Ephesians 4:11-13",
+  },
+  {
+    title: "Resurrection & Eternity",
+    body: "We believe in the resurrection of the dead, eternal judgment, and life everlasting.",
+    ref: "John 3:16; John 5:24-27; Revelation 20:11-15",
+  },
+  {
+    title: "Christ's Reign",
+    body: "We believe in the present rule and reign of the Lord Jesus through His Body the Church — resulting in a glorious Church and a global harvest that marks the end of the age.",
+    ref: "Matthew 13:39; Acts 3:21",
+  },
+  {
+    title: "Restoration",
+    body: "The Church is in a process of restoration. God calls us to repent, be converted, and receive refreshing from His presence for the restoration of all things.",
+    ref: "Acts 3:19-21; Hebrews 6:1-2",
+  },
+  {
+    title: "Reformation by the Spirit",
+    body: "We are committed to allow the Holy Spirit to bring reformation in the Church for this restoration and the manifestation of God's sons in the earth.",
+    ref: "Romans 8:19-21; 2 Corinthians 3:17-18",
   },
 ];
+
+// Vision, Mission and the three-fold core purpose — from the official statement.
+export const vision = {
+  eyebrow: "Vision & Mission",
+  visionHeading: "Our Vision",
+  vision:
+    "To cause people to see, experience and walk in the Abundant Life that Jesus came to give — serving the Body of Christ as a Resource Centre, distributing Living Bread to the nations.",
+  missionHeading: "Our Mission",
+  mission:
+    "People perish for lack of knowledge. We arm the Church with the knowledge and wisdom to win, to stand, and to recover what was lost to archaic methods — because God wants every church effective, influential and relevant.",
+  purposeHeading: "The Abundant Life",
+  purposeIntro:
+    "It is God's intent that we do not merely bump into His goodness, but live in it. Our three-fold purpose is to help every person:",
+  purpose: [
+    {
+      title: "See",
+      body: "As light and salt in our community, we help others wake up to the realization that there is more to life than they presently know. The foundation of sight is the born-again experience.",
+      ref: "John 3:3",
+    },
+    {
+      title: "Experience",
+      body: "Being born again lets us see God's kingdom, yet many never taste its life. We serve to help people give up the old life and receive the new creation they are in Christ.",
+      ref: "2 Corinthians 5:17",
+    },
+    {
+      title: "Walk",
+      body: "Our walk is our way of life, and our way of life is the way of God's covenant — men, women and children in a walk of relationship with God and one another that produces life in every way.",
+      ref: "Matthew 22:37-39",
+    },
+  ],
+};
+
+// The 12 ministries of the church. Parentheticals mirror the official names.
+export type Ministry = { name: string; note?: string };
+
+export const ministries: Ministry[] = [
+  { name: "Women's Ministry" },
+  { name: "Men's Ministry" },
+  { name: "Couples Ministry" },
+  { name: "Singles Ministry" },
+  { name: "Intercessory Prayer" },
+  { name: "Creating Abundant Disciples", note: "New Member Class" },
+  { name: "Hospitality Ministry" },
+  { name: "Abundant Life News", note: "Newsletter" },
+  { name: "Dance Team", note: "Step Ministry" },
+  { name: "Music Ministry" },
+  { name: "Publicity Ministry" },
+  { name: "Youth Ministry" },
+];
+
+// Five-fold purpose (condensed) and the T.E.A.M. ministry approach.
+export const values = {
+  eyebrow: "Values & Purpose",
+  heading: "Our Five-Fold Purpose",
+  intro:
+    "Everything we do serves one aim — people and nations coming into the abundant life of Christ.",
+  points: [
+    "To activate and develop peoples and nations to intimacy with God and one another.",
+    "To transform the world through an administration of grace and truth, not conscience or law.",
+    "To fulfil the three-fold testimony of God's Kingdom come — that God is our God, that we find our identity in Him, and that we live with Him upon the earth.",
+    "To bring the fruitfulness of the God of the garden to the barrenness of the earth.",
+    "To cause peoples and nations to see, experience and walk in the abundant life that Jesus came to give.",
+  ],
+  team: {
+    heading: "A Team Ministry",
+    intro:
+      "We are a Team Ministry, called to frame, equip and activate ministry in the saints — the School of Eagles.",
+    letters: [
+      { letter: "T", word: "Train" },
+      { letter: "E", word: "Equip" },
+      { letter: "A", word: "Activate" },
+      { letter: "M", word: "Ministry" },
+    ],
+  },
+};
 
 export const shepherd = {
   heading: "The Shepherd",
@@ -269,6 +393,6 @@ export const contact = {
 
 export const footer = {
   blurb:
-    "A church family in Johannesburg helping people see, experience and walk on the abundant life Jesus came to give.",
+    "A church family in Johannesburg helping people see, experience and walk in the abundant life Jesus came to give.",
   credit: "Website by Elonhub Tech",
 };
